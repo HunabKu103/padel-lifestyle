@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Pádel & Lifestyle",
+    "slug": "padel-lifestyle",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.nelson.padelifestyle"
+    },
+    "web": {
+      "bundler": "metro",
+      "build": {
+        "babel": {
+          "include": [
+            "expo-asset"
+          ]
+        }
+      },
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": []
+  }
+}
