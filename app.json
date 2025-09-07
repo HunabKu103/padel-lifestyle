@@ -1,13 +1,16 @@
 {
   "expo": {
-    "name": "Pádel & Lifestyle",
+    "name": "padel-lifestyle",
     "slug": "padel-lifestyle",
+    "scheme": "padellifestyle",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "backgroundColor": "#000000"
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -16,19 +19,13 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.nelson.padelifestyle"
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
     },
     "web": {
-      "bundler": "metro",
-      "build": {
-        "babel": {
-          "include": [
-            "expo-asset"
-          ]
-        }
-      },
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": []
+    }
   }
 }
