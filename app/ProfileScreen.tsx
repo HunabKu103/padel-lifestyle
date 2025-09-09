@@ -1,283 +1,234 @@
-// ProfileScreen.tsx
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-// Datos de ejemplo del perfil
-const perfilUsuario = {
-  nombre: "Juan Pérez",
-  nivel: "Intermedio",
-  edad: 28,
-  ubicacion: "Ciudad de Guatemala",
-  descripcion: "Apasionado del pádel, buscando nuevos amigos y competencias emocionantes.",
-  estadisticas: {
-    partidos: 45,
-    victorias: 28,
-    torneos: 12
-  }
-};
+// app/ProfileScreen.tsx
+import { useRouter } from 'expo-router';
+import { doc, getDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { auth, db } from '../firebaseConfig';
 
 export default function ProfileScreen() {
-  const navigation = useNavigation();
-  const [activo, setActivo] = useState('perfil');
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        router.replace('/LoginScreen');
+        return;
+      }
+
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        setUser({ id: currentUser.uid, ...userDoc.data() });
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+      Alert.alert('Error', 'No se pudo cargar el perfil');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    auth.signOut();
+    router.replace('/LoginScreen');
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Cargando perfil...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>No se encontró el perfil</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerTitle}>Mi Perfil</Text>
-      
-      <ScrollView style={styles.profileContent}>
-        {/* Header del perfil */}
-        <View style={styles.profileHeader}>
-          <Image 
-            source={{ uri: "https://placehold.co/100x100/000000/D4AF37?text=JP" }} 
-            style={styles.profileImage}
-          />
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{perfilUsuario.nombre}</Text>
-            <Text style={styles.profileLevel}>{perfilUsuario.nivel}</Text>
-            <Text style={styles.profileLocation}>{perfilUsuario.ubicacion}</Text>
-          </View>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.profileImage}>
+          <Text style={styles.profileInitials}>
+            {user.name?.charAt(0) || 'P'}
+          </Text>
         </View>
-
-        {/* Descripción */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Acerca de mí</Text>
-          <Text style={styles.description}>{perfilUsuario.descripcion}</Text>
-        </View>
-
-        {/* Estadísticas */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Estadísticas</Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{perfilUsuario.estadisticas.partidos}</Text>
-              <Text style={styles.statLabel}>Partidos</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{perfilUsuario.estadisticas.victorias}</Text>
-              <Text style={styles.statLabel}>Victorias</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{perfilUsuario.estadisticas.torneos}</Text>
-              <Text style={styles.statLabel}>Torneos</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Intereses */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Mis Intereses</Text>
-          <View style={styles.interestsContainer}>
-            <TouchableOpacity style={styles.interestTag}>
-              <Text style={styles.interestText}>Pádel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.interestTag}>
-              <Text style={styles.interestText}>Viajes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.interestTag}>
-              <Text style={styles.interestText}>Gastronomía</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.interestTag}>
-              <Text style={styles.interestText}>Música</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Botones de acción */}
-        <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>Editar Perfil</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingsButton}>
-            <Text style={styles.settingsButtonText}>Configuración</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-      
-      {/* Barra de navegación inferior */}
-      <View style={styles.navigationBar}>
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Login' as never)}
-        >
-          <Text style={styles.navItemText}>Inicio</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Booking' as never)}
-        >
-          <Text style={styles.navItemText}>Clubes</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Events' as never)}
-        >
-          <Text style={styles.navItemText}>Eventos</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Connections' as never)}
-        >
-          <Text style={styles.navItemText}>Conexiones</Text>
-        </TouchableOpacity>
+        <Text style={styles.userName}>{user.name}</Text>
+        <Text style={styles.userLevel}>Nivel: {user.level}</Text>
+        <Text style={styles.userLocation}>📍 {user.location}</Text>
       </View>
-    </View>
+
+      <View style={styles.infoCard}>
+        <Text style={styles.cardTitle}>Información del Jugador</Text>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>ID de Jugador:</Text>
+          <Text style={styles.infoValue}>#{user.userIdNumber}</Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Email:</Text>
+          <Text style={styles.infoValue}>{user.email}</Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Miembro desde:</Text>
+          <Text style={styles.infoValue}>
+            {user.createdAt?.toDate().toLocaleDateString() || 'Fecha no disponible'}
+          </Text>
+        </View>
+        
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Partidos jugados:</Text>
+          <Text style={styles.infoValue}>{user.matches || 0}</Text>
+        </View>
+      </View>
+
+      <View style={styles.interestsCard}>
+        <Text style={styles.cardTitle}>Intereses</Text>
+        <View style={styles.interestsContainer}>
+          {user.interests?.map((interest: string, index: number) => (
+            <View key={index} style={styles.interestTag}>
+              <Text style={styles.interestText}>{interest}</Text>
+            </View>
+          )) || <Text style={styles.noInterests}>Sin intereses definidos</Text>}
+        </View>
+      </View>
+
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Cerrar Sesión</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#f5f5f5',
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#D4AF37',
-    textAlign: 'center',
-    marginBottom: 5,
-    marginTop: 40,
-  },
-  profileContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  profileHeader: {
-    flexDirection: 'row',
+  header: {
+    backgroundColor: '#4A90E2',
+    padding: 30,
     alignItems: 'center',
-    backgroundColor: '#111111',
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#333333',
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    marginRight: 15,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  profileName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 5,
-  },
-  profileLevel: {
-    fontSize: 16,
-    color: '#D4AF37',
-    marginBottom: 3,
-  },
-  profileLocation: {
-    fontSize: 14,
-    color: '#AAAAAA',
-  },
-  section: {
-    backgroundColor: '#111111',
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#333333',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#D4AF37',
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 15,
   },
-  description: {
-    fontSize: 14,
-    color: '#CCCCCC',
-    lineHeight: 20,
+  profileInitials: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#4A90E2',
   },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
+  userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: 'white',
+    marginBottom: 5,
   },
-  statLabel: {
+  userLevel: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+    marginBottom: 5,
+  },
+  userLocation: {
     fontSize: 14,
-    color: '#AAAAAA',
-    marginTop: 5,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  infoCard: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 15,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  infoLabel: {
+    fontSize: 16,
+    color: '#666',
+  },
+  infoValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  interestsCard: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 15,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   interestsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   interestTag: {
-    backgroundColor: 'rgba(212, 175, 55, 0.2)',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
+    backgroundColor: '#e3f2fd',
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 15,
     marginRight: 10,
     marginBottom: 10,
   },
   interestText: {
-    color: '#D4AF37',
+    color: '#4A90E2',
     fontSize: 14,
   },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+  noInterests: {
+    color: '#999',
+    fontStyle: 'italic',
   },
-  editButton: {
-    flex: 1,
-    backgroundColor: '#D4AF37',
+  logoutButton: {
+    backgroundColor: '#FF6B6B',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
-    marginRight: 10,
+    margin: 20,
   },
-  editButtonText: {
-    color: '#000000',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  settingsButton: {
-    flex: 1,
-    backgroundColor: '#333333',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-    marginLeft: 10,
-  },
-  settingsButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  navigationBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#111111',
-    paddingVertical: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#333333',
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navItemText: {
-    color: '#D4AF37',
-    fontSize: 16,
+  logoutText: {
+    color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });

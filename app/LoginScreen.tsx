@@ -1,21 +1,30 @@
-// LoginScreen.tsx
-import { useNavigation } from '@react-navigation/native';
+// app/LoginScreen.tsx
+import { useRouter } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { auth } from '../firebaseConfig';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = () => {
-    // Validación básica
-    if (email && password) {
-      Alert.alert('Éxito', 'Inicio de sesión exitoso');
-      // Aquí puedes navegar a la pantalla principal
-      // navigation.navigate('Home' as never);
-    } else {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert('Error', 'Por favor completa todos los campos');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.replace('/homescreen');
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,7 +35,6 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#888"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -36,55 +44,27 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        placeholderTextColor="#888"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
       
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Iniciar Sesión</Text>
+      <TouchableOpacity 
+        style={styles.loginButton} 
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+        </Text>
       </TouchableOpacity>
       
       <TouchableOpacity 
-        style={styles.secondaryButton}
-        onPress={() => navigation.navigate('Register' as never)}
+        style={styles.registerButton}
+        onPress={() => router.push('/RegisterScreen')}
       >
-        <Text style={styles.secondaryButtonText}>¿No tienes cuenta? Regístrate</Text>
+        <Text style={styles.registerText}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
-
-      {/* Botones de navegación a otras pantallas */}
-      <View style={styles.navigationContainer}>
-        <Text style={styles.navTitle}>Explorar la App</Text>
-        
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => navigation.navigate('Booking' as never)}
-        >
-          <Text style={styles.navButtonText}>Hotéis y Clubes</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => navigation.navigate('Events' as never)}
-        >
-          <Text style={styles.navButtonText}>Eventos</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => navigation.navigate('Connections' as never)}
-        >
-          <Text style={styles.navButtonText}>Conexiones</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => navigation.navigate('Profile' as never)}
-        >
-          <Text style={styles.navButtonText}>Mi Perfil</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -94,67 +74,41 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#000000',
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 30,
-    color: '#D4AF37',
+    marginBottom: 40,
+    color: '#4A90E2',
   },
   input: {
-    backgroundColor: '#111111',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderColor: '#333333',
-    color: '#FFFFFF',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    fontSize: 16,
   },
-  button: {
-    backgroundColor: '#D4AF37',
+  loginButton: {
+    backgroundColor: '#4A90E2',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
   },
   buttonText: {
-    color: '#000000',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  secondaryButton: {
-    marginBottom: 30,
-  },
-  secondaryButtonText: {
-    color: '#D4AF37',
-    textAlign: 'center',
-  },
-  navigationContainer: {
-    marginTop: 30,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#333333',
-  },
-  navTitle: {
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 15,
   },
-  navButton: {
-    backgroundColor: '#111111',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#333333',
+  registerButton: {
+    alignItems: 'center',
   },
-  navButtonText: {
-    color: '#D4AF37',
-    textAlign: 'center',
-    fontWeight: 'bold',
+  registerText: {
+    color: '#4A90E2',
+    fontSize: 16,
   },
 });

@@ -1,93 +1,84 @@
 // app/_layout.tsx
-import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
-export default function TabLayout() {
+export default function Layout() {
   return (
-    <Tabs
+    <Stack
       screenOptions={{
-        tabBarActiveTintColor: '#D4AF37',
-        tabBarInactiveTintColor: '#B0B0B0',
-        tabBarStyle: { backgroundColor: '#000' },
-        headerShown: false,
+        headerStyle: {
+          backgroundColor: '#4A90E2',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
       }}
     >
-      {/* Pestaña: Inicio */}
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Inicio',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
+      <Stack.Screen 
+        name="LoginScreen" 
+        options={{ 
+          title: 'Iniciar Sesión',
+          headerShown: false
+        }} 
       />
-
-      {/* Pestaña: Perfil */}
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Perfil',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
-        }}
+      <Stack.Screen 
+        name="RegisterScreen" 
+        options={{ 
+          title: 'Crear Cuenta',
+          headerShown: false
+        }} 
       />
-
-      {/* Pestaña: After Pádel */}
-      <Tabs.Screen
-        name="afterpadel"
-        options={{
-          title: 'After Pádel',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="wine" size={size} color={color} />
-          ),
-        }}
+      <Stack.Screen 
+        name="homescreen" 
+        options={{ 
+          title: 'Padel Lifestyle',
+          headerShown: false
+        }} 
       />
-
-      {/* Pestaña: Eventos */}
-      <Tabs.Screen
-        name="events"
-        options={{
-          title: 'Eventos',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
-          ),
-        }}
+      <Stack.Screen 
+        name="ProfileScreen" 
+        options={{ 
+          title: 'Mi Perfil'
+        }} 
       />
-
-      {/* Pestaña: Conexiones */}
-      <Tabs.Screen
-        name="connections"
-        options={{
-          title: 'Conexiones',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
-          ),
-        }}
+      <Stack.Screen 
+        name="EventsScreen" 
+        options={{ 
+          title: 'Eventos'
+        }} 
       />
-
-      {/* Pestaña: Canchas */}
-      <Tabs.Screen
-        name="courts"
-        options={{
-          title: 'Canchas',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="tennisball" size={size} color={color} />
-          ),
-        }}
+      <Stack.Screen 
+        name="BookingScreen" 
+        options={{ 
+          title: 'Reservar Pista'
+        }} 
       />
-
-      {/* Pestaña: WhatsApp */}
-      <Tabs.Screen
-        name="whatsapp-login"
-        options={{
-          title: 'WhatsApp',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="logo-whatsapp" size={size} color={color} />
-          ),
-        }}
+      <Stack.Screen 
+        name="ConnectionsScreen" 
+        options={{ 
+          title: 'Conexiones'
+        }} 
       />
-    </Tabs>
+      <Stack.Screen 
+        name="SwipeScreen" 
+        options={{ 
+          title: 'Padel Crush'
+        }} 
+      />
+      <Stack.Screen 
+        name="QRScannerScreen" 
+        options={{ 
+          title: 'Escanear QR'
+        }} 
+      />
+    </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+});

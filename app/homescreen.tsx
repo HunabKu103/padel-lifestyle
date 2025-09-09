@@ -1,117 +1,124 @@
+// app/homescreen.tsx
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { auth } from '../firebaseConfig';
 
-const HomeScreen = () => {
-  const featuredEvents = [
-    { id: 1, title: 'Torneo de Verano', date: '2023-08-15', location: 'Club Padel Central' },
-    { id: 2, title: 'Clases de Iniciación', date: '2023-08-16', location: 'Padel Academy' },
-  ];
+export default function HomeScreen() {
+  const router = useRouter();
 
-  const upcomingMatches = [
-    { id: 1, opponent: 'Equipo Alpha', date: '2023-08-17', time: '18:00' },
-    { id: 2, opponent: 'Equipo Beta', date: '2023-08-18', time: '19:30' },
-  ];
+  const handleLogout = () => {
+    auth.signOut();
+    router.replace('/LoginScreen');
+  };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Bienvenido a Padel Lifestyle</Text>
-        <Text style={styles.subtitle}>Tu comunidad de padel</Text>
+      <Text style={styles.title}>Padel Lifestyle</Text>
+      
+      <View style={styles.grid}>
+        <TouchableOpacity 
+          style={styles.gridItem} 
+          onPress={() => router.push('/Profile')}
+        >
+          <Text style={styles.gridItemText}>👤</Text>
+          <Text style={styles.gridItemLabel}>Mi Perfil</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.gridItem} 
+          onPress={() => router.push('/Events')}
+        >
+          <Text style={styles.gridItemText}>🎾</Text>
+          <Text style={styles.gridItemLabel}>Eventos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.gridItem} 
+          onPress={() => router.push('/Booking')}
+        >
+          <Text style={styles.gridItemText}>📅</Text>
+          <Text style={styles.gridItemLabel}>Reservar Pista</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.gridItem} 
+          onPress={() => router.push('/Swipe')}
+        >
+          <Text style={styles.gridItemText}>♥</Text>
+          <Text style={styles.gridItemLabel}>Padel Crush</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.gridItem} 
+          onPress={() => router.push('/Connections')}
+        >
+          <Text style={styles.gridItemText}>👥</Text>
+          <Text style={styles.gridItemLabel}>Conexiones</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Próximos Eventos</Text>
-        {featuredEvents.map(event => (
-          <TouchableOpacity key={event.id} style={styles.eventCard}>
-            <Text style={styles.eventTitle}>{event.title}</Text>
-            <Text style={styles.eventDetails}>{event.date} - {event.location}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Próximos Partidos</Text>
-        {upcomingMatches.map(match => (
-          <TouchableOpacity key={match.id} style={styles.matchCard}>
-            <Text style={styles.matchOpponent}>{match.opponent}</Text>
-            <Text style={styles.matchDetails}>{match.date} a las {match.time}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Cerrar Sesión</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    backgroundColor: '#007AFF',
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 30,
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: 'white',
+    textAlign: 'center',
+    marginVertical: 30,
+    color: '#4A90E2',
   },
-  subtitle: {
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+  },
+  gridItem: {
+    width: '45%',
+    aspectRatio: 1,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  gridItemText: {
+    fontSize: 40,
+    marginBottom: 10,
+  },
+  gridItemLabel: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 5,
+    fontWeight: '600',
+    textAlign: 'center',
   },
-  section: {
-    margin: 15,
+  logoutButton: {
+    backgroundColor: '#FF6B6B',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    margin: 30,
   },
-  sectionTitle: {
+  logoutText: {
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  eventCard: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  eventDetails: {
-    fontSize: 14,
-    color: '#666',
-  },
-  matchCard: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  matchOpponent: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  matchDetails: {
-    fontSize: 14,
-    color: '#666',
   },
 });
-
-export default HomeScreen;
