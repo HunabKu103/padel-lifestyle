@@ -1,8 +1,8 @@
-// app/SwipeScreen.tsx
+// src/screens/main/SwipeScreen.tsx
 import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { auth, db } from '../firebaseConfig';
+import { auth, db } from '../../../app/firebaseConfig';
 
 type UserProfile = {
   id: string;
@@ -31,7 +31,12 @@ export default function SwipeScreen() {
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setCurrentUser({ id: user.uid, ...userDoc.data() as UserProfile });
+          // CORRECCIÓN: Evitar duplicación de id
+          const userData = userDoc.data() as UserProfile;
+          setCurrentUser({
+            ...userData,
+            id: user.uid  // Asegurar que el id sea el correcto
+          });
         }
       } catch (error) {
         console.error('Error loading current user:', error);
@@ -47,13 +52,15 @@ export default function SwipeScreen() {
       // Obtener todos los usuarios excepto el actual
       const usersRef = collection(db, 'users');
       const querySnapshot = await getDocs(usersRef);
-      
+
       const profilesData: UserProfile[] = [];
       querySnapshot.forEach((doc) => {
         if (doc.id !== currentUser.uid) {
+          // CORRECCIÓN: Evitar duplicación de id
+          const docData = doc.data() as UserProfile;
           profilesData.push({
-            id: doc.id,
-            ...doc.data() as UserProfile
+            ...docData,
+            id: doc.id  // Asegurar que el id sea el correcto
           });
         }
       });
@@ -99,8 +106,8 @@ export default function SwipeScreen() {
       // Verificar si el otro usuario también nos dio like
       const reverseConnectionId = `${targetUserId}_${currentUser.uid}`;
       const reverseConnectionDoc = await getDoc(doc(db, 'connections', reverseConnectionId));
-      
-      if (reverseConnectionDoc.exists() && reverseConnectionDoc.data().type === 'like') {
+
+      if (reverseConnectionDoc.exists() && reverseConnectionDoc.data()?.type === 'like') {
         // ¡Match! Actualizar ambos registros
         await setDoc(doc(db, 'connections', `${currentUser.uid}_${targetUserId}`), {
           fromUserId: currentUser.uid,
@@ -127,10 +134,10 @@ export default function SwipeScreen() {
 
   const handleLike = async () => {
     if (profiles.length === 0 || currentIndex >= profiles.length) return;
-    
+
     const targetProfile = profiles[currentIndex];
     await saveConnection(targetProfile.id, 'like');
-    
+
     // Avanzar al siguiente perfil
     if (currentIndex < profiles.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -141,10 +148,10 @@ export default function SwipeScreen() {
 
   const handleDislike = async () => {
     if (profiles.length === 0 || currentIndex >= profiles.length) return;
-    
+
     const targetProfile = profiles[currentIndex];
     await saveConnection(targetProfile.id, 'dislike');
-    
+
     // Avanzar al siguiente perfil
     if (currentIndex < profiles.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -168,7 +175,7 @@ export default function SwipeScreen() {
         <Text style={styles.noProfilesText}>
           No hay más perfiles para mostrar
         </Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.refreshButton}
           onPress={() => {
             setCurrentIndex(0);
@@ -186,7 +193,7 @@ export default function SwipeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Padel Crush</Text>
-      
+
       {/* Tarjeta de perfil */}
       <View style={styles.card}>
         <View style={styles.placeholderImage}>
@@ -194,13 +201,13 @@ export default function SwipeScreen() {
             {currentProfile.name?.charAt(0) || 'P'}
           </Text>
         </View>
-        
+
         <Text style={styles.profileName}>{currentProfile.name || 'Jugador'}</Text>
         <Text style={styles.profileLevel}>Nivel: {currentProfile.level || 'Principiante'}</Text>
         <Text style={styles.profileLocation}>
           {currentProfile.location || 'Ubicación no especificada'}
         </Text>
-        
+
         {currentProfile.interests && (
           <View style={styles.interestsContainer}>
             <Text style={styles.interestsTitle}>Intereses:</Text>
@@ -216,7 +223,7 @@ export default function SwipeScreen() {
         <TouchableOpacity style={styles.dislikeButton} onPress={handleDislike}>
           <Text style={styles.dislikeText}>✕</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.likeButton} onPress={handleLike}>
           <Text style={styles.likeText}>♥</Text>
         </TouchableOpacity>
